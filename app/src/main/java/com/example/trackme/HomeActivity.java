@@ -31,6 +31,7 @@ public class HomeActivity extends AppCompatActivity {
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = firebaseAuth.getCurrentUser();
 
+
         userEmail.setText(firebaseUser.getEmail());
         logout.setOnClickListener(new View.OnClickListener() {
             @Override

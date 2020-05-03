@@ -17,6 +17,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,7 +37,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 
@@ -61,6 +65,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     FirebaseAuth firebaseAuth;
     FirebaseUser firebaseUser;
+
+
+    //Class For Date And Time
+    public class PassTime{
+        private String dateAndTime;
+
+        public PassTime(String dateAndTime){
+            this.dateAndTime = dateAndTime;
+        }
+
+        public String getDateAndTime() {
+            return dateAndTime;
+        }
+
+        public void setDateAndTime(String dateAndTime) {
+            this.dateAndTime = dateAndTime;
+        }
+    }
+
+    //firebase user process
+    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,30 +119,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         editTextLatitude = findViewById(R.id.editText);
         editTextLongitude = findViewById(R.id.editText2);
+        final String userUid =user.getUid();
+
+        final String name;
 
         //Database Information
-        databaseReference = FirebaseDatabase.getInstance().getReference("Location");
-        //listener for database
-        databaseReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                try {
+        databaseReference = FirebaseDatabase.getInstance().getReference("Workers ID");
 
 
-                    String databaseLatitudeString = dataSnapshot.child("latitude").getValue().toString().substring(1, dataSnapshot.child("latitude").getValue().toString().length()-1);
-                    String databaseLongitudeString = dataSnapshot.child("longitude").getValue().toString().substring(1, dataSnapshot.child("longitude").getValue().toString().length()-1);
-
-                }
-                 catch (Exception e){
-                    e.printStackTrace();
-                 }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
     }
 
 
@@ -215,11 +224,43 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+
+
     //To send into database
     public void updateButtonOnclick(View view){
+        //listener for database
+        databaseReference.addValueEventListener(new ValueEventListener() {
 
-        databaseReference.child("latitude").push().setValue(editTextLatitude.getText().toString());
-        databaseReference.child("longitude").push().setValue(editTextLongitude.getText().toString());
+
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                try {
+
+                   String user_name = dataSnapshot.child(user.getUid()).child("name1").getValue().toString().substring(1, dataSnapshot.child("name1").getValue().toString().length()-1);;
+                    String databaseLatitudeString = dataSnapshot.child(user.getUid()).child("latitude").getValue().toString().substring(1, dataSnapshot.child("latitude").getValue().toString().length()-1);
+                    String databaseLongitudeString = dataSnapshot.child(user.getUid()).child("longitude").getValue().toString().substring(1, dataSnapshot.child("longitude").getValue().toString().length()-1);
+                }
+                 catch (Exception e){
+                    e.printStackTrace();
+                 }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+        Date date = new Date();
+        SimpleDateFormat formatter = new SimpleDateFormat("EEE , MMM dd hh:mm a");
+        PassTime passTime = new PassTime(formatter.format(date));
+
+        databaseReference.child(user.getUid()).child("Time and Date").push().setValue(passTime);
+        databaseReference.child(user.getUid()).child("longitude").push().setValue(editTextLongitude.getText().toString());
+        databaseReference.child(user.getUid()).child("name").push().setValue(firebaseUser.getEmail());
+        databaseReference.child(user.getUid()).child("latitude").push().setValue(editTextLatitude.getText().toString());
+
+        //databaseReference.child(userUid).push().setValue(user);
         Toast.makeText(MapsActivity.this, "Location sent" , Toast.LENGTH_LONG).show();
     }
 
