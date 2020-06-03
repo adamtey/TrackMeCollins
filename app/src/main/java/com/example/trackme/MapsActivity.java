@@ -53,8 +53,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private final long MIN_Time = 1000;
     private final long MIN_DIST = 5;
 
-    private EditText editTextLatitude;
-    private EditText editTextLongitude;
+
+
+    private TextView editTextLatitude;
+    private TextView editTextLongitude;
+
 
     //Global variable for Longitude and latitude
     double latitude;
@@ -155,6 +158,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                //Getting various latitude and longitude
                  latitude = location.getLatitude();
                  longitude = location.getLongitude();
+
+                 editTextLatitude.findViewById(R.id.editText);
+                 editTextLongitude.findViewById(R.id.editText2);
 
                 try {
                     editTextLatitude.setText(Double.toString(location.getLatitude()));
